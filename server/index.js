@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 5000
 
 // ── Middleware ─────────────────────────────────────
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:4173'],
+  origin: ['http://localhost:5173', 'http://localhost:4173', 'http://sell-smart-pi.vercel.app'],
   credentials: true,
 }))
 app.use(express.json())
@@ -29,11 +29,11 @@ app.use(clerkMiddleware())
 
 
 // ── Routes ─────────────────────────────────────────
-app.use('/api/products',  productRoutes)
-app.use('/api/sales',     salesRoutes)
-app.use('/api/udhaari',   udhaariRoutes)
+app.use('/api/products', productRoutes)
+app.use('/api/sales', salesRoutes)
+app.use('/api/udhaari', udhaariRoutes)
 app.use('/api/analytics', analyticsRoutes)
-app.use('/api/ml',        mlRoutes)
+app.use('/api/ml', mlRoutes)
 app.use('/api/shopkeeper', shopkeeperRoutes)
 
 app.get('/api/health', (_, res) => res.json({ status: 'ok', ts: new Date() }))
