@@ -348,3 +348,24 @@ select.input-field option {
   border-radius: 8px !important;
   color: var(--text) !important;
 }
+/* ==========================================================================
+   MOBILE RESPONSIVENESS
+   ========================================================================== */
+@media (max-width: 768px) {
+  .layout-container { flex-direction: column !important; }
+  .sidebar-container {
+    width: 100% !important; min-height: auto !important; position: relative !important;
+    border-right: none !important; border-bottom: 1px solid var(--border); padding: 10px !important;
+    flex-direction: row !important; align-items: center; justify-content: space-between;
+  }
+  .sidebar-logo { margin-bottom: 0 !important; margin-right: 20px; }
+  .sidebar-menu-label { display: none; }
+  .sidebar-bottom { display: none; }
+  .sidebar-nav {
+    flex-direction: row !important; overflow-x: auto; padding-bottom: 4px; gap: 8px !important;
+  }
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+  .sidebar-link { padding: 8px 10px; font-size: 13px; }
+  .layout-content { padding: 16px !important; }
+  .data-table { display: block; overflow-x: auto; white-space: nowrap; }
+}

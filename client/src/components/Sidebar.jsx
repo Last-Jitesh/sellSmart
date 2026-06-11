@@ -84,6 +84,7 @@ const links = [
 export default function Sidebar() {
   return (
     <aside
+      className="sidebar-container"
       style={{
         width: 220,
         minHeight: '100vh',
@@ -95,10 +96,11 @@ export default function Sidebar() {
         position: 'sticky',
         top: 0,
         flexShrink: 0,
+        zIndex: 50,
       }}
     >
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 6px', marginBottom: 28 }}>
+      <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 6px', marginBottom: 28 }}>
         <img src={logo} alt="SellSmart" style={{ width: 36, height: 36, objectFit: 'contain' }} />
         <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--heading)', letterSpacing: '-0.02em' }}>
           Sell<span style={{ color: '#888' }}>Smart</span>
@@ -106,8 +108,8 @@ export default function Sidebar() {
       </div>
 
       {/* Nav links */}
-      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <p style={{ fontSize: 10, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 8px', marginBottom: 8 }}>
+      <nav className="sidebar-nav" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <p className="sidebar-menu-label" style={{ fontSize: 10, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 8px', marginBottom: 8 }}>
           Menu
         </p>
         {links.map((link) => (
@@ -117,13 +119,13 @@ export default function Sidebar() {
             className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}
           >
             {link.icon}
-            {link.label}
+            <span className="sidebar-link-text">{link.label}</span>
           </NavLink>
         ))}
       </nav>
 
       {/* Bottom label */}
-      <div style={{ padding: '12px 8px 0', borderTop: '1px solid var(--border)' }}>
+      <div className="sidebar-bottom" style={{ padding: '12px 8px 0', borderTop: '1px solid var(--border)' }}>
         <p style={{ fontSize: 11, color: 'var(--muted)' }}>SellSmart v1.0</p>
         <p style={{ fontSize: 11, color: '#333', marginTop: 2 }}>Smart Retail OS</p>
       </div>
