@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 5000
 
 // ── Middleware ─────────────────────────────────────
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:4173', 'http://sellsmart-india.vercel.app'],
+  origin: ['http://localhost:5173', 'http://localhost:4173', 'https://sellsmart-india.vercel.app'],
   credentials: true,
 }))
 
