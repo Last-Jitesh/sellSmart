@@ -7,6 +7,12 @@ import clerkAuth from '../middleware/clerkAuth.js'
 const router = express.Router()
 router.use(clerkAuth)
 
+// Helper — works for both legacy single-item and new multi-item bills
+const calcRevenue = (sale) =>
+  sale.items?.length > 0
+    ? (sale.totalAmount || 0)
+    : (sale.qty * sale.sellingPrice || 0)
+
 // GET /api/analytics/dashboard-stats
 router.get('/dashboard-stats', async (req, res, next) => {
   try {
@@ -24,8 +30,8 @@ router.get('/dashboard-stats', async (req, res, next) => {
       Udhaari.find({ userId: req.userId }),
     ])
 
-    const todayRevenue  = todaySales.reduce((s, x) => s + x.qty * x.sellingPrice, 0)
-    const monthRevenue  = monthSales.reduce((s, x) => s + x.qty * x.sellingPrice, 0)
+    const todayRevenue   = todaySales.reduce((s, x) => s + calcRevenue(x), 0)
+    const monthRevenue   = monthSales.reduce((s, x) => s + calcRevenue(x), 0)
     const pendingUdhaari = udhaaris.reduce((s, u) => s + Math.max(0, u.totalAmount - (u.paidAmount || 0)), 0)
 
     res.json({ todayRevenue, monthRevenue, totalProducts: products, pendingUdhaari })
@@ -47,7 +53,7 @@ router.get('/weekly', async (req, res, next) => {
     const byDate = {}
     sales.forEach(s => {
       if (!byDate[s.date]) byDate[s.date] = { label: s.date, earnings: 0, count: 0 }
-      byDate[s.date].earnings += s.qty * s.sellingPrice
+      byDate[s.date].earnings += calcRevenue(s)
       byDate[s.date].count    += 1
     })
 
@@ -83,19 +89,38 @@ router.get('/categories', async (req, res, next) => {
       date: { $gte: from, $lte: to },
     })
 
-    // Fetch product categories
-    const productIds = [...new Set(sales.map(s => String(s.productId)))]
-    const products = await Product.find({ _id: { $in: productIds } })
+    // Collect all productIds — from both legacy and new bill format
+    const productIds = new Set()
+    sales.forEach(s => {
+      if (s.items?.length > 0) {
+        s.items.forEach(i => productIds.add(String(i.productId)))
+      } else if (s.productId) {
+        productIds.add(String(s.productId))
+      }
+    })
+
+    const products = await Product.find({ _id: { $in: [...productIds] } })
     const catMap = {}
     products.forEach(p => { catMap[String(p._id)] = p.category || 'General' })
 
     // Aggregate revenue by category
     const byCategory = {}
     sales.forEach(s => {
-      const cat = catMap[String(s.productId)] || 'General'
-      if (!byCategory[cat]) byCategory[cat] = { category: cat, revenue: 0, count: 0 }
-      byCategory[cat].revenue += s.qty * s.sellingPrice
-      byCategory[cat].count   += 1
+      if (s.items?.length > 0) {
+        // New multi-item bill — iterate each item
+        s.items.forEach(item => {
+          const cat = catMap[String(item.productId)] || 'General'
+          if (!byCategory[cat]) byCategory[cat] = { category: cat, revenue: 0, count: 0 }
+          byCategory[cat].revenue += item.qty * item.sellingPrice
+          byCategory[cat].count   += 1
+        })
+      } else {
+        // Legacy single-item
+        const cat = catMap[String(s.productId)] || 'General'
+        if (!byCategory[cat]) byCategory[cat] = { category: cat, revenue: 0, count: 0 }
+        byCategory[cat].revenue += s.qty * s.sellingPrice
+        byCategory[cat].count   += 1
+      }
     })
 
     const result = Object.values(byCategory).sort((a, b) => b.revenue - a.revenue)

@@ -8,6 +8,9 @@ class SaleRecord(BaseModel):
     month: int
     year: int
     currentStock: float = 0
+    # historicalStock = stock AT THAT TIME (for real training)
+    # If not provided, currentStock is used as a proxy
+    historicalStock: Optional[float] = None
     category: str = "General"
 
 class PredictRequest(BaseModel):
@@ -21,3 +24,5 @@ class ProductPrediction(BaseModel):
     predictedQty: float
     currentStock: float
     recommendation: str
+    # tells frontend whether real or synthetic model was used
+    modelType: str = "synthetic"

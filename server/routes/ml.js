@@ -29,9 +29,16 @@ router.post('/predict', async (req, res, next) => {
       const sales = await Sale.find({ userId: req.userId, date: { $gte: from, $lte: to } })
       const map = {}
       sales.forEach(s => {
-        const key = String(s.productId)
-        if (!map[key]) map[key] = { productId: key, productName: s.productName, qty: 0, month, year }
-        map[key].qty += s.qty
+        // Handle both legacy and new bill format
+        const lineItems = s.items?.length > 0
+          ? s.items
+          : [{ productId: s.productId, productName: s.productName, qty: s.qty }]
+
+        lineItems.forEach(item => {
+          const key = String(item.productId)
+          if (!map[key]) map[key] = { productId: key, productName: item.productName, qty: 0, month, year }
+          map[key].qty += item.qty
+        })
       })
       records.push(...Object.values(map))
     }
